@@ -3,7 +3,6 @@ defmodule IrcServer do
 
   def start(_type, _args) do
     import Supervisor.Spec
-    IO.puts "running"
     children = [
       supervisor(Task.Supervisor, [[name: IrcServer.TaskSupervisor]]),
       worker(Task, [IrcServer.TcpServer, :accept, [6667]])
