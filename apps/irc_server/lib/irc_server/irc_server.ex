@@ -16,8 +16,10 @@ defmodule IrcServer.IrcServer do
 
   def handle_cast({:privmsg, source, channel, message}, connections) do
     Enum.each connections, fn connection ->
-      # Logger.debug "Sending #{inspect message} to #{inspect connection}"
-      IrcServer.TcpServer.send_response(":#{source} PRIVMSG #{channel} #{message}", elem(connection, 1))
+      Task.async fn ->
+        # Logger.debug "Sending #{inspect message} to #{inspect connection}"
+        IrcServer.TcpServer.send_response(":#{source} PRIVMSG #{channel} #{message}", elem(connection, 1))
+      end
     end
     {:noreply, connections}
   end
