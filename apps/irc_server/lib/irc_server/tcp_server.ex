@@ -4,6 +4,7 @@ defmodule IrcServer.TcpServer do
   def accept(port) do
     {:ok, socket} = :gen_tcp.listen(port,
                       [:binary, packet: :line, active: false, reuseaddr: true])
+    {:ok, irc} = IrcServer.IrcServer.start_link
     Logger.info "Accepting conections on port #{port}"
     loop_acceptor(socket)
   end
@@ -21,8 +22,7 @@ defmodule IrcServer.TcpServer do
     socket
     |> read_line
     |> parse_commands
-    |> run_commands
-    |> send_response(socket)
+    |> run_commands(socket)
 
     serve(socket)
   end
@@ -40,14 +40,22 @@ defmodule IrcServer.TcpServer do
     end
   end
 
-  defp run_commands({prefix, "USER", params}) do
+  defp run_commands({prefix, "USER", params}, socket) do
   end
 
-  defp run_commands({"USER", params}) do
-    "Welcome\n\r"
+  defp run_commands({"USER", params}, socket) do
+    send_response(":localhost 001 mbs :Welcome\r\n", socket)
   end
 
-  defp run_commands(args) do
+  defp run_commands({"JOIN", [channel]}, socket) do
+    IrcServer.IrcServer.join({self, socket, String.strip(channel)})
+  end
+
+  defp run_commands({"PRIVMSG", [channel, message]}, socket) do
+    IrcServer.IrcServer.privmsg("mbs", channel, message)
+  end
+
+  defp run_commands(args, socket) do
     :empty
   end
 
@@ -57,13 +65,10 @@ defmodule IrcServer.TcpServer do
     data
   end
 
-  defp send_response(response = :empty, socket) do end
+  def send_response(response = :empty, socket) do end
 
-  defp send_response(response, socket) do
-    # if String.starts_with?(line, "USER") do
-    #   :ok = :gen_tcp.send(socket, ":localhost 001 mbs :Welcome\n\r")
-    #   :ok = :gen_tcp.send(socket, "PING :lkasjdflklasdjflkj")
-    # end
-    :gen_tcp.send(socket, ":localhost 001 mbs :Welcome\n\r")
+  def send_response(response, socket) do
+    # Logger.debug "Sending #{inspect response} to #{inspect socket}"
+    :gen_tcp.send(socket, response)
   end
 end
