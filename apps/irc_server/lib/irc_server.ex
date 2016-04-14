@@ -5,6 +5,7 @@ defmodule IrcServer do
     import Supervisor.Spec
     IO.puts "running"
     children = [
+      supervisor(Task.Supervisor, [[name: IrcServer.TaskSupervisor]]),
       worker(Task, [IrcServer.TcpServer, :accept, [6667]])
     ]
 
