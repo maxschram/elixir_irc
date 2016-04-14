@@ -31,11 +31,11 @@ defmodule IrcServer.TcpServer do
     lines = String.split(line, " ")
     case lines do
       [":" <> prefix, command | params] ->
-        Logger.debug "Prefix: #{prefix} Command: #{command} Params:
+        # Logger.debug "Prefix: #{prefix} Command: #{command} Params:
           #{Enum.join(params, ", ")}"
         {prefix, command, params}
       [command | params] ->
-        Logger.debug "Command: #{command} Params: #{Enum.join(params, ", ")}"
+        # Logger.debug "Command: #{command} Params: #{Enum.join(params, ", ")}"
         {command, params}
     end
   end
@@ -55,7 +55,7 @@ defmodule IrcServer.TcpServer do
     IrcServer.IrcServer.privmsg("mbs", channel, message)
   end
 
-  defp run_commands({"PING", [hostname]}) do
+  defp run_commands({"PING", [hostname]}, socket) do
     send_response("PONG #{hostname}", socket)
   end
 
