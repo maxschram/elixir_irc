@@ -55,6 +55,10 @@ defmodule IrcServer.TcpServer do
     IrcServer.IrcServer.privmsg("mbs", channel, message)
   end
 
+  defp run_commands({"PING", [hostname]}) do
+    send_response("PONG #{hostname}", socket)
+  end
+
   defp run_commands(args, socket) do
     :empty
   end
