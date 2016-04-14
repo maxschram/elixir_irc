@@ -1,0 +1,2 @@
+defmodule IrcServer do
+end
