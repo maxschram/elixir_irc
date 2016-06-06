@@ -2,6 +2,7 @@ defmodule IrcServer do
   use Application
 
   def start(_type, _args) do
+    :observer.start()
     import Supervisor.Spec
     children = [
       supervisor(Task.Supervisor, [[name: IrcServer.TaskSupervisor]]),
